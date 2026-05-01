@@ -63,7 +63,6 @@
 <script>
 async function cekKelulusan() {
     const nisn = document.getElementById('nisn-input').value.trim();
-    const alertBox = document.getElementById('alert-box');
 
     if (!nisn) {
         alert("Masukkan NISN!");
@@ -71,27 +70,36 @@ async function cekKelulusan() {
     }
 
     try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbyvYe3O5p5LRLJD5K8d0v7OxnFkQymPi9GoHXyx_lyVNCg3lz7WLvehXzjoRTLN7WRU/exec?nisn=" + nisn);
+        const url = "https://script.google.com/macros/s/AKfycbzDFTXL1SXA0nGsKGuPlnlc1N8jFi7NZJvvpgBpaRrI04nxJbnwZ_qQ7L58Fp-73NCJ/exec?nisn=" 
+                    + encodeURIComponent(nisn);
+
+        console.log("URL:", url); // debug
+
+        const res = await fetch(url);
         const data = await res.json();
 
-        if (!data || data.status === "Data tidak ditemukan") {
-            alertBox.classList.remove('hidden');
-            setTimeout(() => alertBox.classList.add('hidden'), 3000);
+        console.log("DATA:", data); // debug
+
+        if (data.error) {
+            alert(data.error);
             return;
         }
 
-        const siswa = {
+        if (data.status === "Data tidak ditemukan") {
+            alert("NISN tidak ditemukan");
+            return;
+        }
+
+        showModal({
             nama: data.nama,
             tempat: data.tempatlahir,
             tanggal: data.tanggallahir,
             prodi: data.programkeahlian,
             lulus: data.status.toLowerCase() === "lulus"
-        };
+        });
 
-        showModal(siswa);
-
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        console.error(err);
         alert("Gagal koneksi ke server!");
     }
 }
