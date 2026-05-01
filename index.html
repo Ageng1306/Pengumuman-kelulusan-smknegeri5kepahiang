@@ -61,6 +61,7 @@
 <script>
 <script>
 <script>
+<script>
 async function cekKelulusan() {
     const nisn = document.getElementById('nisn-input').value.trim();
 
@@ -70,15 +71,14 @@ async function cekKelulusan() {
     }
 
     try {
-        const url = "https://script.google.com/macros/s/AKfycbzDFTXL1SXA0nGsKGuPlnlc1N8jFi7NZJvvpgBpaRrI04nxJbnwZ_qQ7L58Fp-73NCJ/exec?nisn=" 
-                    + encodeURIComponent(nisn);
+        const url = "https://script.google.com/macros/s/AKfycbzDFTXL1SXA0nGsKGuPlnlc1N8jFi7NZJvvpgBpaRrI04nxJbnwZ_qQ7L58Fp-73NCJ/exec?nisn=" + encodeURIComponent(nisn);
 
-        console.log("URL:", url); // debug
+        console.log("REQUEST:", url);
 
         const res = await fetch(url);
         const data = await res.json();
 
-        console.log("DATA:", data); // debug
+        console.log("RESPONSE:", data);
 
         if (data.error) {
             alert(data.error);
