@@ -59,6 +59,7 @@
 </div>
 
 <script>
+<script>
 async function cekKelulusan() {
     const nisn = document.getElementById('nisn-input').value.trim();
     const alertBox = document.getElementById('alert-box');
@@ -69,7 +70,7 @@ async function cekKelulusan() {
     }
 
     try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbyBfwlCoHcS9b3hlGfPqzLi4JwvG4p174PR7AAZeWc/exec?nisn=" + nisn);
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyvYe3O5p5LRLJD5K8d0v7OxnFkQymPi9GoHXyx_lyVNCg3lz7WLvehXzjoRTLN7WRU/exec?nisn=" + nisn);
         const data = await res.json();
 
         if (!data || data.status === "Data tidak ditemukan") {
@@ -89,7 +90,11 @@ async function cekKelulusan() {
         showModal(siswa);
 
     } catch (e) {
+        console.error(e);
         alert("Gagal koneksi ke server!");
+    }
+}
+</script>
     }
 }
 
