@@ -1,98 +1,62 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengumuman Kelulusan Siswa 2025</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengumuman Kelulusan</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-<div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md text-center">
-    <h1 class="text-xl font-bold mb-4">SMK Negeri 5 Kepahiang</h1>
+<div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-md text-center">
+    <h1 class="text-xl font-bold mb-4">Cek Kelulusan</h1>
 
-    <input type="text" id="nisn-input" placeholder="Masukkan NISN"
-        class="w-full border p-3 rounded-lg mb-4 text-center">
+    <input id="nisn-input" placeholder="Masukkan NISN"
+        class="w-full border p-3 rounded mb-3 text-center">
 
-    <button onclick="cekKelulusan()"
-        class="bg-blue-600 text-white px-4 py-3 rounded-lg w-full">
-        Lihat Hasil
+    <button onclick="cekKelulusan()" 
+        class="bg-blue-600 text-white px-4 py-2 rounded w-full">
+        Cek
     </button>
-</div>
 
-<!-- MODAL -->
-<div id="result-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center">
-    <div class="bg-white p-6 rounded-xl text-center">
-        <h2 id="status-title" class="text-xl font-bold"></h2>
-        <p id="res-nama"></p>
-        <p id="res-tempat"></p>
-        <p id="res-tanggal"></p>
-        <p id="res-prodi"></p>
-        <p id="res-status" class="font-bold mt-2"></p>
-        <button onclick="closeModal()" class="mt-4 bg-black text-white px-4 py-2 rounded">Tutup</button>
-    </div>
-</div>
-
-<div id="alert-box" class="hidden fixed top-5 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded">
-    NISN tidak ditemukan!
+    <div id="debug" class="text-xs text-red-500 mt-3"></div>
 </div>
 
 <script>
 async function cekKelulusan() {
     const nisn = document.getElementById('nisn-input').value.trim();
-    const alertBox = document.getElementById('alert-box');
+    const debug = document.getElementById('debug');
 
-    if (!nisn) {
-        alert("Masukkan NISN!");
-        return;
-    }
+    debug.innerText = "Loading...";
 
     try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbyvYe3O5p5LRLJD5K8d0v7OxnFkQymPi9GoHXyx_lyVNCg3lz7WLvehXzjoRTLN7WRU/exec?nisn=" + nisn);
-        const data = await res.json();
+        const url = "https://script.google.com/macros/s/AKfycbyvYe3O5p5LRLJD5K8d0v7OxnFkQymPi9GoHXyx_lyVNCg3lz7WLvehXzjoRTLN7WRU/exec?nisn=" + nisn;
+        
+        const res = await fetch(url);
+        const text = await res.text(); // ambil sebagai TEXT dulu
 
-        if (!data || data.status === "Data tidak ditemukan") {
-            alertBox.classList.remove('hidden');
-            setTimeout(() => alertBox.classList.add('hidden'), 3000);
+        console.log("RAW RESPONSE:", text);
+        debug.innerText = text; // tampilkan di layar
+
+        let data;
+        try {
+            data = JSON.parse(text); // baru parse
+        } catch (e) {
+            throw "Response bukan JSON!";
+        }
+
+        if (data.status === "Data tidak ditemukan") {
+            debug.innerText = "NISN tidak ditemukan";
             return;
         }
 
-        showModal({
-            nama: data.nama,
-            tempat: data.tempatlahir,
-            tanggal: data.tanggallahir,
-            prodi: data.programkeahlian,
-            lulus: data.status.toLowerCase() === "lulus"
-        });
+        alert("Nama: " + data.nama + " | Status: " + data.status);
 
     } catch (err) {
         console.error(err);
-        alert("Gagal koneksi ke server!");
+        debug.innerText = "ERROR: " + err;
     }
-}
-
-function showModal(d) {
-    document.getElementById('res-nama').innerText = d.nama;
-    document.getElementById('res-tempat').innerText = d.tempat;
-    document.getElementById('res-tanggal').innerText = d.tanggal;
-    document.getElementById('res-prodi').innerText = d.prodi;
-
-    if (d.lulus) {
-        document.getElementById('status-title').innerText = "LULUS 🎉";
-        document.getElementById('res-status').innerText = "Selamat, Anda Lulus!";
-    } else {
-        document.getElementById('status-title').innerText = "TIDAK LULUS";
-        document.getElementById('res-status').innerText = "Tetap semangat!";
-    }
-
-    document.getElementById('result-modal').classList.remove('hidden');
-    document.getElementById('result-modal').classList.add('flex');
-}
-
-function closeModal() {
-    document.getElementById('result-modal').classList.add('hidden');
-    document.getElementById('result-modal').classList.remove('flex');
 }
 </script>
 
