@@ -54,58 +54,63 @@ body { font-family: sans-serif; }
 <script>
 async function cekKelulusan() {
     const nisn = document.getElementById('nisn-input').value.trim();
-    const debug = document.getElementById('debug');
+    const alertBox = document.getElementById('alert-box');
 
     if (!nisn) {
         alert("Masukkan NISN!");
         return;
     }
 
-    debug.innerText = "Loading...";
-
     try {
         const url = "https://script.google.com/macros/s/AKfycbzDFTXL1SXA0nGsKGuPlnlc1N8jFi7NZJvvpgBpaRrI04nxJbnwZ_qQ7L58Fp-73NCJ/exec?nisn=" 
                     + encodeURIComponent(nisn);
 
-        console.log("REQUEST:", url);
-
         const res = await fetch(url);
         const data = await res.json();
 
-        console.log("RESPONSE:", data);
-
-        if (data.error) {
-            debug.innerText = data.error;
+        if (!data || data.status === "Data tidak ditemukan") {
+            alertBox.classList.remove('hidden');
+            setTimeout(() => alertBox.classList.add('hidden'), 3000);
             return;
         }
 
-        if (data.status === "Data tidak ditemukan") {
-            debug.innerText = "NISN tidak ditemukan";
-            return;
-        }
-
-        // tampilkan ke modal
-        document.getElementById('judul').innerText = data.status.toUpperCase();
-        document.getElementById('nama').innerText = data.nama;
-        document.getElementById('ttl').innerText = data.tempatlahir + ", " + data.tanggallahir;
-        document.getElementById('prodi').innerText = data.programkeahlian;
-        document.getElementById('status').innerText = data.status;
-
-        document.getElementById('modal').classList.remove('hidden');
-        document.getElementById('modal').classList.add('flex');
-
-        debug.innerText = "";
+        showModal({
+            nama: data.nama,
+            tempat: data.tempatlahir,
+            tanggal: data.tanggallahir,
+            prodi: data.programkeahlian,
+            status: data.status
+        });
 
     } catch (err) {
         console.error(err);
-        debug.innerText = "Gagal koneksi ke server!";
+        alert("Gagal koneksi ke server!");
     }
 }
 
-function tutup() {
-    document.getElementById('modal').classList.add('hidden');
+function showModal(d) {
+    document.getElementById('res-nama').innerText = d.nama;
+    document.getElementById('res-tempat').innerText = d.tempat;
+    document.getElementById('res-tanggal').innerText = d.tanggal;
+    document.getElementById('res-prodi').innerText = d.prodi;
+    document.getElementById('res-status').innerText = d.status;
+
+    const title = document.getElementById('status-title');
+
+    if (d.status.toLowerCase() === "lulus") {
+        title.innerText = "LULUS 🎉";
+        title.className = "text-2xl font-bold mb-4 text-green-600";
+    } else {
+        title.innerText = "TIDAK LULUS";
+        title.className = "text-2xl font-bold mb-4 text-red-600";
+    }
+
+    document.getElementById('result-modal').classList.remove('hidden');
+    document.getElementById('result-modal').classList.add('flex');
+}
+
+function closeModal() {
+    document.getElementById('result-modal').classList.add('hidden');
+    document.getElementById('result-modal').classList.remove('flex');
 }
 </script>
-
-</body>
-</html>
